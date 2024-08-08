@@ -2,6 +2,8 @@
 
 A simple clipboard manager.
 
+Features dark/light mode and portrait/landscape mode.
+
 ## Requirements
 
 Linux requirements:
