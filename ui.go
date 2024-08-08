@@ -80,10 +80,12 @@ func switchPage(p uint8) {
 		saveBtn.Hide()
 		maxEntriesInput.Hide()
 		captureIntervalMsInput.Hide()
+		darkModeBtn.Hide()
 		backBtn.Deactivate()
 		saveBtn.Deactivate()
 		maxEntriesInput.Deactivate()
 		captureIntervalMsInput.Deactivate()
+		darkModeBtn.Deactivate()
 
 		// show main page content
 		settingsBtn.Activate()
@@ -110,10 +112,12 @@ func switchPage(p uint8) {
 		saveBtn.Activate()
 		maxEntriesInput.Activate()
 		captureIntervalMsInput.Activate()
+		darkModeBtn.Activate()
 		backBtn.Show()
 		saveBtn.Show()
 		maxEntriesInput.Show()
 		captureIntervalMsInput.Show()
+		darkModeBtn.Show()
 	}
 
 	log.Printf("backBtn: %v", backBtn.Visible())
@@ -163,22 +167,94 @@ func responsive(win *fltk.Window) {
 		save := Pos{X: 45, Y: 85, W: 100, H: 10}
 		entries := Pos{X: 55, Y: 5, W: 45, H: 10}
 		capture := Pos{X: 55, Y: 20, W: 45, H: 10}
+		dark := Pos{X: 55, Y: 35, W: 45, H: 10}
 
 		if portrait {
 			back = Pos{X: 5, Y: 135, W: 90, H: 10}
 			save = Pos{X: 5, Y: 120, W: 90, H: 10}
 			entries = Pos{X: 50, Y: 5, W: 45, H: 10}
 			capture = Pos{X: 50, Y: 20, W: 45, H: 10}
+			dark = Pos{X: 5, Y: 35, W: 45, H: 10}
 		}
 
 		back.Translate(winW, winH)
 		save.Translate(winW, winH)
 		entries.Translate(winW, winH)
 		capture.Translate(winW, winH)
+		dark.Translate(winW, winH)
 
 		backBtn.Resize(back.X, back.Y, back.W, back.H)
 		saveBtn.Resize(save.X, save.Y, save.W, save.H)
 		maxEntriesInput.Resize(entries.X, entries.Y, entries.W, entries.H)
 		captureIntervalMsInput.Resize(capture.X, capture.Y, capture.W, capture.H)
+		darkModeBtn.Resize(dark.X, dark.Y, dark.W, dark.H)
 	}
+}
+
+const (
+	DARK_COLOR_TEXT              fltk.Color = 0x9f9f9f00
+	DARK_COLOR_INPUT_BG          fltk.Color = 0x20202000
+	DARK_COLOR_INPUT_SELECTED_BG fltk.Color = 0xafafaf00
+	// DARK_COLOR_TEXT              fltk.Color = 0x20202000
+	// DARK_COLOR_INPUT_BG          fltk.Color = 0x9f9f9f00
+	// DARK_COLOR_INPUT_SELECTED_BG fltk.Color = 0xafafaf00
+
+	LIGHT_COLOR_TEXT              fltk.Color = 0x20030500
+	LIGHT_COLOR_INPUT_BG          fltk.Color = 0xFFFFFF00
+	LIGHT_COLOR_INPUT_SELECTED_BG fltk.Color = 0x00008000
+)
+
+var (
+	COLOR_TEXT              fltk.Color = LIGHT_COLOR_TEXT
+	COLOR_INPUT_BG          fltk.Color = LIGHT_COLOR_INPUT_BG
+	COLOR_INPUT_SELECTED_BG fltk.Color = LIGHT_COLOR_INPUT_SELECTED_BG
+)
+
+func theme(dark bool) {
+	if dark {
+		log.Println("dark mode activated")
+		COLOR_TEXT = DARK_COLOR_TEXT
+		COLOR_INPUT_BG = DARK_COLOR_INPUT_BG
+		COLOR_INPUT_SELECTED_BG = DARK_COLOR_INPUT_SELECTED_BG
+		fltk.SetForegroundColor(230, 230, 230)
+		fltk.SetBackgroundColor(40, 40, 40)
+	} else {
+		log.Println("light mode activated")
+		COLOR_TEXT = LIGHT_COLOR_TEXT
+		COLOR_INPUT_BG = LIGHT_COLOR_INPUT_BG
+		COLOR_INPUT_SELECTED_BG = LIGHT_COLOR_INPUT_SELECTED_BG
+		fltk.SetBackgroundColor(192, 192, 192)
+		fltk.SetForegroundColor(0, 0, 0)
+		return
+	}
+
+	settingsBtn.SetLabelColor(COLOR_TEXT)
+	deleteBtn.SetLabelColor(COLOR_TEXT)
+	copyBtn.SetLabelColor(COLOR_TEXT)
+	logBrowser.SetLabelColor(COLOR_TEXT)
+	maxEntriesInput.SetLabelColor(COLOR_TEXT)
+	captureIntervalMsInput.SetLabelColor(COLOR_TEXT)
+	backBtn.SetLabelColor(COLOR_TEXT)
+	saveBtn.SetLabelColor(COLOR_TEXT)
+	darkModeBtn.SetLabelColor(COLOR_TEXT)
+
+	settingsBtn.SetColor(COLOR_INPUT_BG)
+	deleteBtn.SetColor(COLOR_INPUT_BG)
+	copyBtn.SetColor(COLOR_INPUT_BG)
+	logBrowser.SetColor(COLOR_INPUT_BG)
+	maxEntriesInput.SetColor(COLOR_INPUT_BG)
+	captureIntervalMsInput.SetColor(COLOR_INPUT_BG)
+	backBtn.SetColor(COLOR_INPUT_BG)
+	saveBtn.SetColor(COLOR_INPUT_BG)
+	darkModeBtn.SetColor(COLOR_INPUT_BG)
+
+	settingsBtn.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
+	deleteBtn.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
+	copyBtn.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
+	logBrowser.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
+	maxEntriesInput.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
+	captureIntervalMsInput.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
+	backBtn.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
+	saveBtn.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
+	darkModeBtn.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
 }

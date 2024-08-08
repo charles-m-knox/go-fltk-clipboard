@@ -52,11 +52,13 @@ type AppConfig struct {
 	Log               []ClipboardEntry `json:"log"`
 	CaptureIntervalMS int              `json:"captureIntervalMs"`
 	MaxEntries        int              `json:"maxEntries"`
+	DarkMode          bool             `json:"darkMode"`
 }
 
 // Buttons, inputs, widgets, etc that need to be repositioned in a
 // responsive manner.
 var (
+	win *fltk.Window
 	// For switching to the settings pane.
 	settingsBtn *fltk.Button
 	// For deleting the currently selected entries.
@@ -73,6 +75,7 @@ var (
 	captureIntervalMsInput *fltk.Input
 	backBtn                *fltk.Button
 	saveBtn                *fltk.Button
+	darkModeBtn            *fltk.CheckButton
 )
 
 func parseFlags() {
@@ -144,9 +147,10 @@ func main() {
 		portrait = false
 	}
 
-	win := fltk.NewWindow(windowWidth, windowHeight)
-	fltk.SetScheme("gtk+")
-	win.SetLabel("Main Window")
+	win = fltk.NewWindow(windowWidth, windowHeight, "Clipboard Manager FLTK")
+	// fltk.SetScheme("gtk+")
+	fltk.InitStyles()
+	fltk.SetTooltipDelay(0.1)
 	win.Resizable(win)
 
 	// main page widgets
@@ -160,6 +164,7 @@ func main() {
 	saveBtn = fltk.NewButton(0, 0, 0, 0, "&Save")
 	maxEntriesInput = fltk.NewInput(0, 0, 0, 0, "&Max Items")
 	captureIntervalMsInput = fltk.NewInput(0, 0, 0, 0, "&Capture Interval (ms)")
+	darkModeBtn = fltk.NewCheckButton(0, 0, 0, 0, "&Dark Mode")
 
 	maxEntriesInput.SetValue(fmt.Sprint(appConf.MaxEntries))
 	captureIntervalMsInput.SetValue(fmt.Sprint(appConf.CaptureIntervalMS))
@@ -169,6 +174,19 @@ func main() {
 	saveBtn.Hide()
 	maxEntriesInput.Hide()
 	captureIntervalMsInput.Hide()
+	darkModeBtn.Hide()
+
+	darkModeChanged := false
+	darkModeBtn.SetValue(appConf.DarkMode)
+
+	darkModeBtn.SetCallback(func() {
+		appConf.DarkMode = !appConf.DarkMode
+		if !darkModeChanged {
+			fltk.MessageBox("App Restart Required", "In order for this to take effect, the theme change won't take effect until the application is restarted.")
+			darkModeChanged = true
+		}
+		darkModeBtn.SetValue(appConf.DarkMode)
+	})
 
 	captureIntervalMsInput.SetCallback(func() {
 		interval, err := strconv.ParseInt(captureIntervalMsInput.Value(), 10, 64)
@@ -228,11 +246,14 @@ func main() {
 		}
 		// initialize with the previously stored entries
 		if l > 0 {
+			i := 1
 			for j := l - 1; j >= 0; j-- {
 				v := strings.ReplaceAll(appConf.Log[j].Value, "\n", "\\n")
-				v = fmt.Sprintf("%v. %v", j+1, v[:minz(len(v)-1, 200)])
+				// v = fmt.Sprintf("%v.  %v", j+1, v[:minz(len(v)-1, 200)])
+				v = fmt.Sprintf("%v.  %v", i, v[:minz(len(v)-1, 200)])
 				logBrowser.Add(v)
 				_ = logBrowser.SetSelected(j, appConf.Log[j].Selected)
+				i++
 			}
 		}
 	}
@@ -266,6 +287,9 @@ func main() {
 	logBrowser.SetCallback(func() {
 		// Logf("value: %v", logBrowser.Value())
 		// Logf("child count: %v", logBrowser.IsSelected())
+		i := logBrowser.Value()
+		j := len(appConf.Log) - i
+		logBrowser.SetTooltip(appConf.Log[j].Value)
 	})
 
 	copyBtn.SetCallback(func() {
@@ -286,7 +310,7 @@ func main() {
 			}
 
 			if logBrowser.IsSelected(i) {
-				copyStr.WriteString(appConf.Log[j].Value)
+				copyStr.WriteString(fmt.Sprintf("%v\n", appConf.Log[j].Value))
 				itemsCopied++
 			}
 
@@ -300,6 +324,9 @@ func main() {
 			log.Println("nothing to copy")
 			return
 		}
+
+		// remove the final trailing newline
+		result = strings.TrimSuffix(result, "\n")
 
 		log.Printf("%v/%v items copied for a total of %v bytes", itemsCopied, l, len(result))
 
@@ -377,6 +404,8 @@ func main() {
 	win.SetResizeHandler(func() {
 		responsive(win)
 	})
+
+	theme(appConf.DarkMode)
 
 	responsive(win)
 
