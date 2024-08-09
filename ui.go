@@ -165,16 +165,16 @@ func responsive(win *fltk.Window) {
 	case PAGE_SETTINGS:
 		back := Pos{X: 5, Y: 85, W: 35, H: 10}
 		save := Pos{X: 45, Y: 85, W: 100, H: 10}
-		entries := Pos{X: 55, Y: 5, W: 45, H: 10}
-		capture := Pos{X: 55, Y: 20, W: 45, H: 10}
-		dark := Pos{X: 55, Y: 35, W: 45, H: 10}
+		entries := Pos{X: 5, Y: 15, W: 60, H: 10}
+		capture := Pos{X: 85, Y: 15, W: 60, H: 10}
+		dark := Pos{X: 5, Y: 30, W: 60, H: 10}
 
 		if portrait {
 			back = Pos{X: 5, Y: 135, W: 90, H: 10}
 			save = Pos{X: 5, Y: 120, W: 90, H: 10}
-			entries = Pos{X: 50, Y: 5, W: 45, H: 10}
-			capture = Pos{X: 50, Y: 20, W: 45, H: 10}
-			dark = Pos{X: 5, Y: 35, W: 45, H: 10}
+			entries = Pos{X: 5, Y: 15, W: 90, H: 10}
+			capture = Pos{X: 5, Y: 40, W: 90, H: 10}
+			dark = Pos{X: 5, Y: 55, W: 90, H: 10}
 		}
 
 		back.Translate(winW, winH)

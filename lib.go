@@ -3,10 +3,8 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"io"
 	"log"
 	"os"
-	"os/exec"
 	"path/filepath"
 )
 
@@ -41,29 +39,29 @@ func Logf(format string, v ...any) {
 // `stdin`, `stdout`, and `stderr` can all be `nil`.
 //
 // Returns the exit code of the command when it finishes.
-func RunCommand(command string, args []string, env []string, stdin io.Reader, stdout, stderr io.Writer) (int, error) {
-	cmd := exec.Command(command, args...)
-	cmd.Env = append(cmd.Env, env...)
+// func runCommand(command string, args []string, env []string, stdin io.Reader, stdout, stderr io.Writer) (int, error) {
+// 	cmd := exec.Command(command, args...)
+// 	cmd.Env = append(cmd.Env, env...)
 
-	if stdin != nil {
-		cmd.Stdin = stdin
-	}
+// 	if stdin != nil {
+// 		cmd.Stdin = stdin
+// 	}
 
-	if stdout != nil {
-		cmd.Stdout = stdout
-	}
+// 	if stdout != nil {
+// 		cmd.Stdout = stdout
+// 	}
 
-	if stderr != nil {
-		cmd.Stderr = stdout
-	}
+// 	if stderr != nil {
+// 		cmd.Stderr = stdout
+// 	}
 
-	err := cmd.Run()
-	if err != nil {
-		return cmd.ProcessState.ExitCode(), err
-	}
+// 	err := cmd.Run()
+// 	if err != nil {
+// 		return cmd.ProcessState.ExitCode(), err
+// 	}
 
-	return cmd.ProcessState.ExitCode(), nil
-}
+// 	return cmd.ProcessState.ExitCode(), nil
+// }
 
 // Returns a minimum value of 0 if the provided integer is less than 0.
 // Otherwise, returns the int itself.

@@ -169,6 +169,9 @@ func main() {
 	maxEntriesInput.SetValue(fmt.Sprint(appConf.MaxEntries))
 	captureIntervalMsInput.SetValue(fmt.Sprint(appConf.CaptureIntervalMS))
 
+	maxEntriesInput.SetAlign(fltk.ALIGN_TOP_LEFT)
+	captureIntervalMsInput.SetAlign(fltk.ALIGN_TOP_LEFT)
+
 	// hide the settings page widgets on first load
 	backBtn.Hide()
 	saveBtn.Hide()
@@ -408,6 +411,8 @@ func main() {
 	theme(appConf.DarkMode)
 
 	responsive(win)
+
+	win.SetXClass("go-fltk-clipboard")
 
 	win.End()
 	win.Show()
