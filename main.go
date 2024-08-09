@@ -53,6 +53,9 @@ type AppConfig struct {
 	CaptureIntervalMS int              `json:"captureIntervalMs"`
 	MaxEntries        int              `json:"maxEntries"`
 	DarkMode          bool             `json:"darkMode"`
+	// A list of secrets and the values to mask them with.
+	// Can only be supplied by directly editing the config.
+	Secrets map[string]string `json:"secrets"`
 }
 
 // Buttons, inputs, widgets, etc that need to be repositioned in a
@@ -127,6 +130,9 @@ func main() {
 	if appConf.MaxEntries == 0 {
 		appConf.MaxEntries = maxEntries
 	}
+	if appConf.Secrets == nil {
+		appConf.Secrets = make(map[string]string)
+	}
 
 	portrait, err = isPortrait()
 	if err != nil {
@@ -158,6 +164,8 @@ func main() {
 	deleteBtn = fltk.NewButton(0, 0, 0, 0, "&Delete")
 	copyBtn = fltk.NewButton(0, 0, 0, 0, "&Copy")
 	logBrowser = fltk.NewMultiBrowser(0, 0, 0, 0)
+	logBrowser.SetLabelSize(10)
+	logBrowser.SetLabelFont(fltk.HELVETICA)
 
 	// settings page widgets
 	backBtn = fltk.NewButton(0, 0, 0, 0, "&Back")
@@ -258,7 +266,9 @@ func main() {
 			for j := l - 1; j >= 0; j-- {
 				v := strings.ReplaceAll(appConf.Log[j].Value, "\n", "\\n")
 				// v = fmt.Sprintf("%v.  %v", j+1, v[:minz(len(v)-1, 200)])
-				v = fmt.Sprintf("%v.  %v", i, v[0:minz(len(v), 200)])
+				v = v[0:minz(len(v), 200)]
+				v = obscure(v, appConf.Secrets)
+				v = fmt.Sprintf("%v.  %v", i, v)
 				logBrowser.Add(v)
 				_ = logBrowser.SetSelected(j+1, appConf.Log[j].Selected)
 				i++
@@ -414,12 +424,23 @@ func main() {
 	// 	logBrowser.SetSelected(len(appConf.Log), true)
 	// }
 
+	gracefulExit := func() {
+		Log("closing app and saving config, please wait a moment...")
+		err := saveConfig(configFilePath, &appConf)
+		if err != nil {
+			log.Printf("failed to save config: %v", err.Error())
+		}
+
+		Log("done, exiting now.")
+		os.Exit(0)
+	}
 	// invisible menu that receives keyboard shortcuts
 	topMenu := fltk.NewMenuBar(0, 0, 0, 0)
 	topMenu.AddEx("Copy", fltk.CTRL+'c', copyAction, 0)
 	topMenu.AddEx("Delete", fltk.DELETE, delAction, 0)
 	topMenu.AddEx("Save", fltk.CTRL+'s', saveAction, 0)
 	topMenu.AddEx("Select All", fltk.CTRL+'a', selectAllAction, 0)
+	topMenu.AddEx("Quit", fltk.CTRL+'q', gracefulExit, 0)
 	// topMenu.AddEx("Home", fltk.HOME, homeAction, 0)
 	// topMenu.AddEx("End", fltk.END, endAction, 0)
 	copyBtn.SetCallback(copyAction)
@@ -432,17 +453,6 @@ func main() {
 			time.Sleep(time.Duration(appConf.CaptureIntervalMS) * time.Millisecond)
 		}
 	}()
-
-	gracefulExit := func() {
-		Log("closing app and saving config, please wait a moment...")
-		err := saveConfig(configFilePath, &appConf)
-		if err != nil {
-			log.Printf("failed to save config: %v", err.Error())
-		}
-
-		Log("done, exiting now.")
-		os.Exit(0)
-	}
 
 	win.SetCallback(gracefulExit)
 
@@ -463,7 +473,7 @@ func main() {
 
 	responsive(win)
 
-	win.SetXClass("go-fltk-clipboard")
+	win.SetXClass("gfltkclip")
 
 	win.End()
 	win.Show()

@@ -6,6 +6,7 @@ import (
 	"log"
 	"os"
 	"path/filepath"
+	"strings"
 )
 
 // this is a value from the fltk lib that is used for scrolling to the bottom of
@@ -78,6 +79,25 @@ func minz(a, b int) int {
 		return floorz(a)
 	}
 	return floorz(b)
+}
+
+// Replaces all occurences of any keys in the secrets map with their masked
+// values.
+func obscure(s string, secrets map[string]string) string {
+	r := s
+	for k, v := range secrets {
+		if k == "" {
+			continue
+		}
+
+		if v == "" {
+			v = strings.Repeat("*", len(k))
+		}
+
+		r = strings.ReplaceAll(r, k, v)
+	}
+
+	return r
 }
 
 /*
