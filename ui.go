@@ -119,8 +119,6 @@ func switchPage(p uint8) {
 		captureIntervalMsInput.Show()
 		darkModeBtn.Show()
 	}
-
-	log.Printf("backBtn: %v", backBtn.Visible())
 }
 
 // Resizes and repositions all components based on the window's size.

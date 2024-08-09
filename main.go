@@ -169,8 +169,13 @@ func main() {
 	maxEntriesInput.SetValue(fmt.Sprint(appConf.MaxEntries))
 	captureIntervalMsInput.SetValue(fmt.Sprint(appConf.CaptureIntervalMS))
 
+	maxEntriesInput.SetTooltip(fmt.Sprintf("This can be a large number, but performance may suffer. Default=%v", DEFAULT_MAX_ENTRIES))
+	captureIntervalMsInput.SetTooltip(fmt.Sprintf("The smaller the interval, the sooner clipboard events will show up in this app. Avoid setting this number too small. Default=%v", DEFAULT_CAPTURE_INTERVAL_MS))
+	darkModeBtn.SetTooltip("Toggling the UI mode requires a restart, and this setting will persist to settings between app restarts.")
+
 	maxEntriesInput.SetAlign(fltk.ALIGN_TOP_LEFT)
 	captureIntervalMsInput.SetAlign(fltk.ALIGN_TOP_LEFT)
+	logBrowser.SetAlign(fltk.ALIGN_BOTTOM_LEFT)
 
 	// hide the settings page widgets on first load
 	backBtn.Hide()
@@ -244,7 +249,7 @@ func main() {
 		logBrowser.Clear()
 		l := len(appConf.Log)
 		if l > appConf.MaxEntries {
-			appConf.Log = appConf.Log[:appConf.MaxEntries]
+			appConf.Log = appConf.Log[1 : appConf.MaxEntries+1]
 			l = len(appConf.Log)
 		}
 		// initialize with the previously stored entries
@@ -253,9 +258,9 @@ func main() {
 			for j := l - 1; j >= 0; j-- {
 				v := strings.ReplaceAll(appConf.Log[j].Value, "\n", "\\n")
 				// v = fmt.Sprintf("%v.  %v", j+1, v[:minz(len(v)-1, 200)])
-				v = fmt.Sprintf("%v.  %v", i, v[:minz(len(v)-1, 200)])
+				v = fmt.Sprintf("%v.  %v", i, v[0:minz(len(v), 200)])
 				logBrowser.Add(v)
-				_ = logBrowser.SetSelected(j, appConf.Log[j].Selected)
+				_ = logBrowser.SetSelected(j+1, appConf.Log[j].Selected)
 				i++
 			}
 		}
@@ -281,21 +286,21 @@ func main() {
 	captureClipboard := func() {
 		latest, err := clipboard.ReadAll()
 		if err != nil {
-			Logf("failed to read clipboard: %v, ", err.Error())
+			// Logf("failed to read clipboard: %v, ", err.Error())
+			return
 		}
 
 		addEntry(latest)
 	}
 
 	logBrowser.SetCallback(func() {
-		// Logf("value: %v", logBrowser.Value())
-		// Logf("child count: %v", logBrowser.IsSelected())
 		i := logBrowser.Value()
 		j := len(appConf.Log) - i
 		logBrowser.SetTooltip(appConf.Log[j].Value)
 	})
 
-	copyBtn.SetCallback(func() {
+	copyAction := func() {
+		total := 0
 		copyStr := new(strings.Builder)
 		l := len(appConf.Log)
 		itemsCopied := 0
@@ -319,7 +324,7 @@ func main() {
 
 			appConf.Log[j].Selected = false
 			logBrowser.SetSelected(i, false)
-			captureClipboard()
+			total += len(appConf.Log[j].Value)
 		}
 
 		result := copyStr.String()
@@ -331,16 +336,18 @@ func main() {
 		// remove the final trailing newline
 		result = strings.TrimSuffix(result, "\n")
 
-		log.Printf("%v/%v items copied for a total of %v bytes", itemsCopied, l, len(result))
+		msg := fmt.Sprintf("%v/%v items copied, %v bytes (%v bytes in history)", itemsCopied, l, len(result), total)
+		logBrowser.SetLabel(msg)
+		log.Println(msg)
 
 		err := clipboard.WriteAll(result)
 		if err != nil {
 			fltk.MessageBox("Error", fmt.Sprintf("Failed to write to clipboard: %v", err.Error()))
 			return
 		}
-	})
+	}
 
-	deleteBtn.SetCallback(func() {
+	delAction := func() {
 		l := len(appConf.Log)
 		toDel := []int{}
 		for i := 1; i <= appConf.MaxEntries; i++ {
@@ -364,6 +371,10 @@ func main() {
 		sort.Ints(toDel)
 		slices.Reverse(toDel)
 
+		msg := fmt.Sprintf("%v/%v items deleted", len(toDel), l)
+		logBrowser.SetLabel(msg)
+		logBrowser.Redraw()
+
 		// i = 40, len = 65
 		// [:40], [41:]...
 		for _, i := range toDel {
@@ -372,7 +383,47 @@ func main() {
 		}
 
 		reconstruct()
-	})
+	}
+
+	saveAction := func() {
+		err := saveConfig(configFilePath, &appConf)
+		if err != nil {
+			fltk.MessageBox("Error", fmt.Sprintf("Failed to save config: %v", err.Error()))
+			return
+		}
+		fltk.MessageBox("Success", "Saved configuration successfully.")
+	}
+
+	selectAllAction := func() {
+		scrollPos := logBrowser.TopLine()
+		for i := range appConf.Log {
+			appConf.Log[i].Selected = true
+			logBrowser.SetSelected(i+1, true)
+		}
+		// reconstruct()
+		_ = logBrowser.SetTopLine(scrollPos)
+	}
+
+	// homeAction := func() {
+	// 	_ = logBrowser.SetTopLine(0)
+	// 	logBrowser.SetSelected(1, true)
+	// }
+
+	// endAction := func() {
+	// 	_ = logBrowser.SetBottomLine(0)
+	// 	logBrowser.SetSelected(len(appConf.Log), true)
+	// }
+
+	// invisible menu that receives keyboard shortcuts
+	topMenu := fltk.NewMenuBar(0, 0, 0, 0)
+	topMenu.AddEx("Copy", fltk.CTRL+'c', copyAction, 0)
+	topMenu.AddEx("Delete", fltk.DELETE, delAction, 0)
+	topMenu.AddEx("Save", fltk.CTRL+'s', saveAction, 0)
+	topMenu.AddEx("Select All", fltk.CTRL+'a', selectAllAction, 0)
+	// topMenu.AddEx("Home", fltk.HOME, homeAction, 0)
+	// topMenu.AddEx("End", fltk.END, endAction, 0)
+	copyBtn.SetCallback(copyAction)
+	deleteBtn.SetCallback(delAction)
 
 	go func() {
 		for {
