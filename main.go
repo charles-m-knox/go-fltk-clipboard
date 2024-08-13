@@ -321,11 +321,12 @@ func main() {
 	}
 
 	logBrowser.SetCallback(func() {
-		i := logBrowser.Value()
-		j := len(appConf.Log) - i
-		if j < 0 {
+		l := len(appConf.Log)
+		if l == 0 {
 			return
 		}
+		i := logBrowser.Value()
+		j := l - i
 		logBrowser.SetTooltip(appConf.Log[j].Value)
 	})
 

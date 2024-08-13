@@ -6,9 +6,11 @@ runtime-version: "23.08"
 sdk: "org.freedesktop.Sdk"
 command: "go-fltk-clipboard"
 finish-args:
-  - "--device=dri"
   - "--socket=fallback-x11"
   - "--socket=wayland"
+  - "--filesystem=xdg-run/Clipboard"
+  # - "--device=dri"
+  # - "--filesystem=host"
   # - "--share=ipc"
   # - "--socket=x11"
 modules:
@@ -21,6 +23,7 @@ modules:
       - "mv go-fltk-clipboard /app/bin/go-fltk-clipboard"
       - "mv icon.svg /app/share/icons/hicolor/scalable/apps/dev.cmcode.go-fltk-clipboard.svg"
       - "mv app.desktop /app/share/applications/dev.cmcode.go-fltk-clipboard.desktop"
+      - "mv xsel wlcopy wlpaste /app/bin/"
     sources:
       - type: file
         path: build/go-fltk-clipboard-v0.0.2-linux-amd64
@@ -31,6 +34,21 @@ modules:
       - type: file
         path: assets/icon.svg
         dest-filename: icon.svg
+
+      # on arch linux, please ensure xsel is installed, as well as wl-clipboard.
+      # Also note that
+      # https://github.com/atotto/clipboard/blob/master/clipboard_unix.go uses
+      # wlpaste and wlcopy as the binary names, but the package installs them as
+      # wl-paste and wl-copy - so we rename them here.
+      - type: file
+        path: /sbin/xsel
+        dest-filename: xsel
+      - type: file
+        path: /sbin/wl-paste
+        dest-filename: wlpaste
+      - type: file
+        path: /sbin/wl-copy
+        dest-filename: wlcopy
 
   # This fixes an issue where the base flatpak runtime cannot resolve libglu:
   # error while loading shared libraries: libGLU.so.1: cannot open shared object file: No such file or directory
