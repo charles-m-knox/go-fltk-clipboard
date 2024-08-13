@@ -1,0 +1,46 @@
+---
+# yaml-language-server: $schema=https://raw.githubusercontent.com/flatpak/flatpak-builder/main/data/flatpak-manifest.schema.json
+id: "dev.cmcode.go-fltk-clipboard"
+runtime: "org.freedesktop.Platform"
+runtime-version: "23.08"
+sdk: "org.freedesktop.Sdk"
+command: "go-fltk-clipboard"
+finish-args:
+  - "--device=dri"
+  - "--socket=fallback-x11"
+  - "--socket=wayland"
+  # - "--share=ipc"
+  # - "--socket=x11"
+modules:
+  - name: "download-build"
+    buildsystem: "simple"
+    build-commands: []
+    post-install:
+      - "mkdir -p /app/bin /app/share/icons/hicolor/scalable/apps /app/share/applications"
+      - "chmod +x go-fltk-clipboard"
+      - "mv go-fltk-clipboard /app/bin/go-fltk-clipboard"
+      - "mv icon.svg /app/share/icons/hicolor/scalable/apps/dev.cmcode.go-fltk-clipboard.svg"
+      - "mv app.desktop /app/share/applications/dev.cmcode.go-fltk-clipboard.desktop"
+    sources:
+      - type: file
+        path: build/go-fltk-clipboard-v0.0.1-linux-amd64
+        dest-filename: go-fltk-clipboard
+      - type: file
+        path: assets/app.desktop
+        dest-filename: app.desktop
+      - type: file
+        path: assets/icon.svg
+        dest-filename: icon.svg
+
+  # This fixes an issue where the base flatpak runtime cannot resolve libglu:
+  # error while loading shared libraries: libGLU.so.1: cannot open shared object file: No such file or directory
+  #
+  # You may periodically need to visit this page and update everything below:
+  # https://github.com/flathub/shared-modules/blob/master/glu/glu-9.json
+  - name: "glu"
+    buildsystem: "meson"
+    sources:
+      - type: "archive"
+        url: "https://archive.mesa3d.org/glu/glu-9.0.3.tar.xz"
+        sha256: "bd43fe12f374b1192eb15fe20e45ff456b9bc26ab57f0eee919f96ca0f8a330f"
+    cleanup: ["/include", "/lib/*.a", "/lib/*.la", "/lib/pkgconfig"]

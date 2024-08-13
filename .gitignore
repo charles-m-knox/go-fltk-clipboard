@@ -1,3 +1,4 @@
 .*.bkp
 go-fltk-clipboard
 build/
+.flatpak-builder/

@@ -1,0 +1,10 @@
+[Desktop Entry]
+Name=Clipboard Manager FLTK
+Encoding=UTF-8
+Type=Application
+NoDisplay=false
+Terminal=false
+Exec=go-fltk-clipboard
+Icon=dev.cmcode.go-fltk-clipboard
+Comment=An extremely lightweight and simple clipboard manager.
+Categories=
