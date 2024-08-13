@@ -25,6 +25,16 @@ const (
 	DEFAULT_CAPTURE_INTERVAL_MS = 1000
 )
 
+// The version of the application; set at build time via:
+//
+//	`go build -ldflags "-X main.version=1.2.3" main.go`
+//
+//nolint:revive
+var version string = "dev"
+
+// Flag for showing the version and subsequently quitting.
+var flagVersion bool
+
 var (
 	forcePortrait  bool
 	forceLandscape bool
@@ -87,11 +97,18 @@ func parseFlags() {
 	flag.StringVar(&configFilePath, "f", "", "the config file to write to, instead of the default provided by XDG config directories")
 	flag.IntVar(&captureIntervalMs, "ms", DEFAULT_CAPTURE_INTERVAL_MS, "interval between each attempt to read the clipboard")
 	flag.IntVar(&maxEntries, "entries", DEFAULT_MAX_ENTRIES, "interval between each attempt to read the clipboard")
+	flag.BoolVar(&flagVersion, "v", false, "print version and exit")
 	flag.Parse()
 }
 
 func main() {
 	parseFlags()
+
+	if flagVersion {
+		//nolint:forbidigo
+		fmt.Println(version)
+		os.Exit(0)
+	}
 
 	var err error
 

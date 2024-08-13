@@ -23,7 +23,7 @@ modules:
       - "mv app.desktop /app/share/applications/dev.cmcode.go-fltk-clipboard.desktop"
     sources:
       - type: file
-        path: build/go-fltk-clipboard-v0.0.1-linux-amd64
+        path: build/go-fltk-clipboard-v0.0.2-linux-amd64
         dest-filename: go-fltk-clipboard
       - type: file
         path: assets/app.desktop
