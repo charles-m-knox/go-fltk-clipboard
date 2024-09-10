@@ -1,4 +1,4 @@
-module go-fltk-clipboard
+module github.com/charles-m-knox/go-fltk-clipboard
 
 go 1.22.5
 
