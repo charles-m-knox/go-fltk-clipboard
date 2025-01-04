@@ -190,7 +190,7 @@ func main() {
 	searchField = fltk.NewInput(0, 0, 0, 0)
 	logBrowser = fltk.NewMultiBrowser(0, 0, 0, 0)
 	logBrowser.SetLabelSize(10)
-	logBrowser.SetLabelFont(fltk.FREE_FONT)
+	logBrowser.SetLabelFont(fltk.HELVETICA)
 
 	// settings page widgets
 	backBtn = fltk.NewButton(0, 0, 0, 0, "&Back")
@@ -345,7 +345,7 @@ func main() {
 		}
 		i := logBrowser.Value()
 		j := l - i
-		logBrowser.SetTooltip(appConf.Log[j].Value)
+		logBrowser.SetTooltip(obscure(appConf.Log[j].Value, appConf.Secrets))
 	})
 
 	copyAction := func() {
