@@ -96,12 +96,14 @@ func switchPage(p uint8) {
 		deleteBtn.Show()
 		copyBtn.Show()
 		logBrowser.Show()
+		searchField.Show()
 	case PAGE_SETTINGS:
 		// hide main page content
 		settingsBtn.Hide()
 		deleteBtn.Hide()
 		copyBtn.Hide()
 		logBrowser.Hide()
+		searchField.Hide()
 		settingsBtn.Deactivate()
 		deleteBtn.Deactivate()
 		copyBtn.Deactivate()
@@ -138,23 +140,27 @@ func responsive(win *fltk.Window) {
 
 	switch currentPage {
 	case PAGE_MAIN:
-		logBrowserPos := Pos{X: 5, Y: 5, W: 140, H: 75}
+		searchFieldPos := Pos{X: 5, Y: 5, W: 140, H: 10}
+		logBrowserPos := Pos{X: 5, Y: 20, W: 140, H: 60}
 		settingsBtnPos := Pos{X: 5, Y: 85, W: 35, H: 10}
 		deleteBtnPos := Pos{X: 45, Y: 85, W: 35, H: 10}
 		copyBtnPos := Pos{X: 85, Y: 85, W: 60, H: 10}
 
 		if portrait {
-			logBrowserPos = Pos{X: 5, Y: 5, W: 90, H: 95}
+			searchFieldPos = Pos{X: 5, Y: 5, W: 90, H: 10}
+			logBrowserPos = Pos{X: 5, Y: 20, W: 90, H: 80}
 			settingsBtnPos = Pos{X: 5, Y: 105, W: 90, H: 10}
 			deleteBtnPos = Pos{X: 5, Y: 120, W: 90, H: 10}
 			copyBtnPos = Pos{X: 5, Y: 135, W: 90, H: 10}
 		}
 
+		searchFieldPos.Translate(winW, winH)
 		settingsBtnPos.Translate(winW, winH)
 		deleteBtnPos.Translate(winW, winH)
 		copyBtnPos.Translate(winW, winH)
 		logBrowserPos.Translate(winW, winH)
 
+		searchField.Resize(searchFieldPos.X, searchFieldPos.Y, searchFieldPos.W, searchFieldPos.H)
 		settingsBtn.Resize(settingsBtnPos.X, settingsBtnPos.Y, settingsBtnPos.W, settingsBtnPos.H)
 		deleteBtn.Resize(deleteBtnPos.X, deleteBtnPos.Y, deleteBtnPos.W, deleteBtnPos.H)
 		copyBtn.Resize(copyBtnPos.X, copyBtnPos.Y, copyBtnPos.W, copyBtnPos.H)
@@ -230,6 +236,7 @@ func theme(dark bool) {
 	deleteBtn.SetLabelColor(COLOR_TEXT)
 	copyBtn.SetLabelColor(COLOR_TEXT)
 	logBrowser.SetLabelColor(COLOR_TEXT)
+	searchField.SetLabelColor(COLOR_TEXT)
 	maxEntriesInput.SetLabelColor(COLOR_TEXT)
 	captureIntervalMsInput.SetLabelColor(COLOR_TEXT)
 	backBtn.SetLabelColor(COLOR_TEXT)
@@ -240,6 +247,7 @@ func theme(dark bool) {
 	deleteBtn.SetColor(COLOR_INPUT_BG)
 	copyBtn.SetColor(COLOR_INPUT_BG)
 	logBrowser.SetColor(COLOR_INPUT_BG)
+	searchField.SetColor(COLOR_INPUT_BG)
 	maxEntriesInput.SetColor(COLOR_INPUT_BG)
 	captureIntervalMsInput.SetColor(COLOR_INPUT_BG)
 	backBtn.SetColor(COLOR_INPUT_BG)
@@ -250,6 +258,7 @@ func theme(dark bool) {
 	deleteBtn.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
 	copyBtn.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
 	logBrowser.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
+	searchField.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
 	maxEntriesInput.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
 	captureIntervalMsInput.SetSelectionColor(COLOR_INPUT_SELECTED_BG)
 	backBtn.SetSelectionColor(COLOR_INPUT_SELECTED_BG)

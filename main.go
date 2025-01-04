@@ -63,6 +63,7 @@ type AppConfig struct {
 	CaptureIntervalMS int              `json:"captureIntervalMs"`
 	MaxEntries        int              `json:"maxEntries"`
 	DarkMode          bool             `json:"darkMode"`
+	Search            string           `json:"search"`
 	// A list of secrets and the values to mask them with.
 	// Can only be supplied by directly editing the config.
 	Secrets map[string]string `json:"secrets"`
@@ -82,6 +83,8 @@ var (
 	// saveBtn *fltk.Button
 	// Each clipboard entry will go into here.
 	logBrowser *fltk.MultiBrowser
+	// For filtering the results.
+	searchField *fltk.Input
 
 	// Settings page items
 	maxEntriesInput        *fltk.Input
@@ -144,9 +147,11 @@ func main() {
 	if appConf.CaptureIntervalMS == 0 {
 		appConf.CaptureIntervalMS = captureIntervalMs
 	}
+
 	if appConf.MaxEntries == 0 {
 		appConf.MaxEntries = maxEntries
 	}
+
 	if appConf.Secrets == nil {
 		appConf.Secrets = make(map[string]string)
 	}
@@ -159,11 +164,13 @@ func main() {
 	// probably could write this more intelligently later
 	windowWidth := WIDTH_LANDSCAPE
 	windowHeight := HEIGHT_LANDSCAPE
+
 	if portrait || forcePortrait {
 		windowWidth = WIDTH_PORTRAIT
 		windowHeight = HEIGHT_PORTRAIT
 		portrait = true
 	}
+
 	if forceLandscape {
 		windowWidth = WIDTH_LANDSCAPE
 		windowHeight = HEIGHT_LANDSCAPE
@@ -180,9 +187,10 @@ func main() {
 	settingsBtn = fltk.NewButton(0, 0, 0, 0, "&Settings")
 	deleteBtn = fltk.NewButton(0, 0, 0, 0, "&Delete")
 	copyBtn = fltk.NewButton(0, 0, 0, 0, "&Copy")
+	searchField = fltk.NewInput(0, 0, 0, 0)
 	logBrowser = fltk.NewMultiBrowser(0, 0, 0, 0)
 	logBrowser.SetLabelSize(10)
-	logBrowser.SetLabelFont(fltk.HELVETICA)
+	logBrowser.SetLabelFont(fltk.FREE_FONT)
 
 	// settings page widgets
 	backBtn = fltk.NewButton(0, 0, 0, 0, "&Back")
@@ -211,6 +219,8 @@ func main() {
 
 	darkModeChanged := false
 	darkModeBtn.SetValue(appConf.DarkMode)
+
+	searchField.SetValue(appConf.Search)
 
 	darkModeBtn.SetCallback(func() {
 		appConf.DarkMode = !appConf.DarkMode
@@ -286,12 +296,20 @@ func main() {
 				v = v[0:minz(len(v), 200)]
 				v = obscure(v, appConf.Secrets)
 				v = fmt.Sprintf("%v.  %v", i, v)
+				if appConf.Search != "" && !strings.Contains(strings.ToLower(appConf.Log[j].Value), strings.ToLower(appConf.Search)) {
+					v = ""
+				}
 				logBrowser.Add(v)
 				_ = logBrowser.SetSelected(j+1, appConf.Log[j].Selected)
 				i++
 			}
 		}
 	}
+
+	searchField.SetCallback(func() {
+		appConf.Search = strings.TrimSpace(searchField.Value())
+		reconstruct()
+	})
 
 	reconstruct()
 
@@ -455,6 +473,7 @@ func main() {
 		Log("done, exiting now.")
 		os.Exit(0)
 	}
+
 	// invisible menu that receives keyboard shortcuts
 	topMenu := fltk.NewMenuBar(0, 0, 0, 0)
 	topMenu.AddEx("Copy", fltk.CTRL+'c', copyAction, 0)

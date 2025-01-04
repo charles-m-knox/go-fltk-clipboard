@@ -1,7 +1,7 @@
 .PHONY=build
 
 BUILDDIR=build
-VER=0.0.2
+VER=0.0.3
 FILE=go-fltk-clipboard
 BIN=$(BUILDDIR)/$(FILE)-v$(VER)
 OUT_BIN_DIR=~/.local/bin
@@ -12,7 +12,7 @@ BUILD_FLAGS=-ldflags="-w -s -buildid= -X main.version=$(VER)" -trimpath
 GPG_SIGNING_KEY=$(shell git config --get user.signingkey)
 FLATPAK_BUILD_DIR=$(BUILDDIR)/flatpak
 FLATPAK_REPOSITORY=/mnt/flatpakrepo-cmcode
-FLATPAK_MANIFEST=dev.cmcode.$(FILE).yml
+FLATPAK_MANIFEST=com.charlesmknox.$(FILE).yml
 FLATPAK_SDK=runtime/org.freedesktop.Sdk/x86_64/23.08
 FLATPAK_RUNTIME=runtime/org.freedesktop.Platform/x86_64/23.08
 

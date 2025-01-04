@@ -1,6 +1,6 @@
 ---
 # yaml-language-server: $schema=https://raw.githubusercontent.com/flatpak/flatpak-builder/main/data/flatpak-manifest.schema.json
-id: "dev.cmcode.go-fltk-clipboard"
+id: "com.charlesmknox.go-fltk-clipboard"
 runtime: "org.freedesktop.Platform"
 runtime-version: "23.08"
 sdk: "org.freedesktop.Sdk"
@@ -21,8 +21,8 @@ modules:
       - "mkdir -p /app/bin /app/share/icons/hicolor/scalable/apps /app/share/applications"
       - "chmod +x go-fltk-clipboard"
       - "mv go-fltk-clipboard /app/bin/go-fltk-clipboard"
-      - "mv icon.svg /app/share/icons/hicolor/scalable/apps/dev.cmcode.go-fltk-clipboard.svg"
-      - "mv app.desktop /app/share/applications/dev.cmcode.go-fltk-clipboard.desktop"
+      - "mv icon.svg /app/share/icons/hicolor/scalable/apps/com.charlesmknox.go-fltk-clipboard.svg"
+      - "mv app.desktop /app/share/applications/com.charlesmknox.go-fltk-clipboard.desktop"
       - "mv xsel wlcopy wlpaste /app/bin/"
     sources:
       - type: file
