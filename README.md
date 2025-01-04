@@ -23,9 +23,7 @@ Go to the [releases page](https://github.com/charles-m-knox/go-fltk-clipboard/re
 
 ## Development setup
 
-This repository makes use of `git lfs` for tracking its word dictionaries. Please ensure you have it working.
-
-To build, run
+To build, run the following - make sure you have `upx` and `go` installed as well as the listed requirements above:
 
 ```bash
 make build-prod
