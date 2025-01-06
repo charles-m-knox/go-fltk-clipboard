@@ -6,7 +6,9 @@ Features dark/light mode and portrait/landscape mode and filtering results.
 
 ## Screenshots
 
-Coming soon.
+![Dark mode, portrait orientation](./docs/screenshot-dark-portrait.png)
+
+![Light mode, landscape orientation](./docs/screenshot-light-landscape.png)
 
 ## Requirements
 
