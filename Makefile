@@ -1,7 +1,7 @@
 .PHONY=build
 
 BUILDDIR=build
-VER=0.0.3
+VER=0.0.4
 FILE=go-fltk-clipboard
 BIN=$(BUILDDIR)/$(FILE)-v$(VER)
 OUT_BIN_DIR=~/.local/bin
@@ -10,6 +10,7 @@ ARCH=$(shell go env GOARCH)
 BUILD_ENV=CGO_ENABLED=1
 BUILD_FLAGS=-ldflags="-w -s -buildid= -X main.version=$(VER)" -trimpath
 GPG_SIGNING_KEY=$(shell git config --get user.signingkey)
+
 FLATPAK_BUILD_DIR=$(BUILDDIR)/flatpak
 FLATPAK_REPOSITORY=/mnt/flatpakrepo-cmcode
 FLATPAK_MANIFEST=com.charlesmknox.$(FILE).yml
@@ -78,6 +79,7 @@ delete-uncompressed:
 delete-builds:
 	rm $(BUILDDIR)/*
 
+# flatpak is unsupported as of 2025-04-15, but leaving here for future reference
 flatpak-prep:
 	mount --fake | grep -i $(FLATPAK_REPOSITORY)
 	rm -rf $(FLATPAK_BUILD_DIR)
